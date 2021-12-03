@@ -592,3 +592,113 @@ server {
 ![](Gambar/44.png)
 ![](Gambar/45.png)
 
+# Soal Tambahan
+
+1. Laravel 
+
+- First, change the configuration file lxc_landing
+
+![](Gambar/47.png)
+
+- And change it like the image below:
+
+![](Gambar/48.png)
+
+- Make it ansible and Run ansible
+
+![](Gambar/49.png)
+![](Gambar/50.png)
+
+```
+---
+- hosts: all
+  become : yes
+  tasks:
+   - name: mengganti php sock
+     lineinfile:
+      path: /etc/php/7.4/fpm/pool.d/www.conf
+      regexp: '^(.*)listen =(.*)$'
+      line: 'listen = 127.0.0.1:9001'
+      backrefs: yes
+   - name: copy the nginx config file 
+     copy:
+      src: ~/ansible/laravel/lxc_landing.dev
+      dest: /etc/nginx/sites-available/lxc_landing.dev
+   - name: Symlink lxc_landing.dev
+     command: ln -sfn /etc/nginx/sites-available/lxc_landing.dev /etc/nginx/sites-enabled/lxc_landing.dev
+     args:
+      warn: false
+   - name: restart nginx
+     service:
+      name: nginx
+      state: restarted
+   - name: restart php7
+     service:
+      name: php7.4-fpm
+      state: restarted
+   - name: curl web
+     command: curl -i http://lxc_landing.dev
+     args:
+      warn: false
+© 2021 GitHub, Inc.
+Terms
+Priv
+```
+![](Gambar/51.png)
+
+- Check by opening vm.local. If successful, it will look like this:
+
+![](Gambar/52.png)
+
+2. Wordpress 
+
+- In the first step, do the same as the first step in laravel. Namely change the configuration file to wordpress.conf And change it like the image below:
+
+![](Gambar/54.png)
+
+- Make it ansible
+
+![](Gambar/55.png)
+
+- Run ansible
+
+![](Gambar/57.png)
+```
+---
+- hosts: all
+  become : yes
+  tasks:
+   - name: mengganti php sock
+     lineinfile:
+      path: /etc/php/7.4/fpm/pool.d/www.conf
+      regexp: '^(.*)listen =(.*)$'
+      line: 'listen = 127.0.0.1:9001'
+      backrefs: yes
+   - name: copy the nginx config file 
+     copy:
+      src: ~/ansible/wordpress/wordpress.conf
+      dest: /etc/nginx/sites-available/lxc_php7.dev
+   - name: Symlink lxc_php7.dev
+     command: ln -sfn /etc/nginx/sites-available/lxc_php7.dev /etc/nginx/sites-enabled/lxc_php7.dev
+     args:
+      warn: false
+   - name: restart nginx
+     service:
+      name: nginx
+      state: restarted
+   - name: restart php7
+     service:
+      name: php7.4-fpm
+      state: restarted
+   - name: curl web
+     command: curl -i http://lxc_php7.dev
+     args:
+      warn: false
+```
+![](Gambar/56.png)
+
+- Check by opening vm.local/blog. If successful, it will look like this:
+
+![](Gambar/58.png)
+
+
